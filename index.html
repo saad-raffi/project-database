@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheet Search</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<!-- ... -->
+
+<body>
+    <div class="container mx-auto p-4">
+        <h1 class="text-2xl font-bold mb-4">Google Sheet Search</h1>
+        <input id="searchInput" type="text" class="border rounded py-2 px-3 mb-4" placeholder="Search...">
+        <table id="results" class="hidden">
+            <thead>
+                <tr>
+                    <th class="border px-4 py-2">S/L</th>
+                    <th class="border px-4 py-2">FID</th>
+                    <th class="border px-4 py-2">ERP ID</th>
+                    <th class="border px-4 py-2">R_Date</th>
+                    <th class="border px-4 py-2">R_Type</th>
+                    <th class="border px-4 py-2">Project</th>
+                    <th class="border px-4 py-2">FDP</th>
+                    <th class="border px-4 py-2">PDP</th>
+                    <th class="border px-4 py-2">Applicant Name</th>
+                    <th class="border px-4 py-2">NID/Birth Reg. Number</th>
+                    <th class="border px-4 py-2">Father/Husband Name</th>
+                    <th class="border px-4 py-2">Mobile</th>
+                    <th class="border px-4 py-2">Monthly Income</th>
+                    <th class="border px-4 py-2">Type</th>
+                    <th class="border px-4 py-2">IGA Name</th>
+                    <th class="border px-4 py-2">Status</th>
+                    <th class="border px-4 py-2">Comp Date</th>
+                    <th class="border px-4 py-2">A/C Number</th>
+                    <th class="border px-4 py-2">R_Amount</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="noResultsMessage" class="hidden">No results found.</p>
+    </div>
+
+    <!-- ... -->
+</body>
+
+<!-- ... -->
+
+    <!-- Include the Google Sheets API JavaScript library -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+       // Load the Google Sheets API
+gapi.load('client', start);
+
+// Initialize the Google Sheets API client
+function start() {
+    gapi.client.init({
+        apiKey: 'AIzaSyCdLvoSAZ8KN4lQ01Y3lkZwqEbuFaCssEo', // Replace with your API key
+        discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+    }).then(() => {
+        // Add event listener to the search input
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', filterData);
+    });
+}
+
+// Fetch data from the Google Sheet
+function fetchData() {
+    return gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: '1osoveaEjK02FyAuReHEhVdRxo9iHj8oVyAKczSUSfj8', // Replace with your Google Sheet ID
+        range: 'Sheet1!A:U', // Replace with your sheet name and range
+    }).then(response => response.result.values);
+}
+
+// Filter data based on search input
+function filterData() {
+    const searchInput = document.getElementById('searchInput');
+    const searchText = searchInput.value.toLowerCase();
+
+    fetchData().then(data => {
+        const filteredData = data.filter(row => {
+            return row.some(cell => cell.toLowerCase().includes(searchText));
+        });
+
+        showResults(filteredData);
+    });
+}
+
+// ...
+
+// ...
+
+// Show the search results
+function showResults(data) {
+    const resultsTable = document.getElementById('results');
+    const tbody = resultsTable.querySelector('tbody');
+    const noResultsMessage = document.getElementById('noResultsMessage');
+
+    tbody.innerHTML = '';
+
+    if (data.length > 0) {
+        data.forEach((row, rowIndex) => {
+            const tr = document.createElement('tr');
+            row.forEach((cell, cellIndex) => {
+                const td = document.createElement('td');
+                td.textContent = cell;
+                td.classList.add('border', 'px-4', 'py-2'); // Apply border and padding classes
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+        resultsTable.classList.remove('hidden');
+        noResultsMessage.classList.add('hidden');
+    } else {
+        resultsTable.classList.add('hidden');
+        noResultsMessage.classList.remove('hidden');
+    }
+}
+
+// ...
+ 
+    </script>
+</body>
+
+</html>
+
